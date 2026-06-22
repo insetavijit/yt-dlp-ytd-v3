@@ -1,0 +1,17 @@
+[project]
+name = "ytd-dn"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pyyaml>=6.0.3",
+    "yt-dlp>=2026.6.9",
+]
+
+[project.scripts]
+ytd-dn = "ytd_dn.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

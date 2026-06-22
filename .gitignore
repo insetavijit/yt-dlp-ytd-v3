@@ -1,0 +1,11 @@
+# environments
+.venv/
+__pycache__/
+*.pyc
+
+# output directories
+downloads/
+
+# IDE
+.idea/
+.vscode/
