@@ -5,12 +5,14 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "mutagen>=1.48.0",
     "pyyaml>=6.0.3",
     "yt-dlp>=2026.6.9",
 ]
 
 [project.scripts]
 ytd-dn = "ytd_dn.cli:main"
+ytd-mp3 = "ytd_dn.mp3:main"
 
 [build-system]
 requires = ["hatchling"]
