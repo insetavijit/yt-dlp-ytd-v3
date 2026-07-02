@@ -17,6 +17,10 @@ def build_cmd(
     cookie_arg: list[str],
 ) -> list[str]:
     """Build the yt-dlp command for a single video download."""
+    if "list=" in url or "/playlist" in url:
+        from ytd_dn.playlist import build_cmd as playlist_build_cmd
+        return playlist_build_cmd(url, cfg, has_ffmpeg, cookie_arg)
+
     from pathlib import Path
 
     output_dir = Path(cfg.get("output_dir", "./downloads"))
