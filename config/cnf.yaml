@@ -1,6 +1,6 @@
-output_dir: ./downloads
+output_dir: /mnt/c/Users/avijit/Downloads/Ytdlp
 url_file: ./list.txt
-cookie_file: ./cookies.txt
+cookie_file: ./cookie.txt
 output_template: "%(title)s.%(ext)s"
 quality: "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]"
 merge_output_format: mp4

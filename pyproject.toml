@@ -1,7 +1,7 @@
 [project]
 name = "ytd-dn"
 version = "0.1.0"
-description = "Add your description here"
+description = "CLI wrapper around yt-dlp for batch downloading YouTube videos (720p) and audio (MP3)"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -13,6 +13,7 @@ dependencies = [
 [project.scripts]
 ytd-dn = "ytd_dn.cli:main"
 ytd-mp3 = "ytd_dn.mp3:main"
+ytd-playlist = "ytd_dn.playlist:main"
 
 [build-system]
 requires = ["hatchling"]
