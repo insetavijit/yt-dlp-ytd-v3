@@ -15,11 +15,12 @@ def build_cmd(
     cfg: dict,
     has_ffmpeg: bool,
     cookie_arg: list[str],
+    force: bool = False,
 ) -> list[str]:
     """Build the yt-dlp command for a single video download."""
     if "list=" in url or "/playlist" in url:
         from ytd_dn.playlist import build_cmd as playlist_build_cmd
-        return playlist_build_cmd(url, cfg, has_ffmpeg, cookie_arg)
+        return playlist_build_cmd(url, cfg, has_ffmpeg, cookie_arg, force)
 
     from pathlib import Path
 
@@ -33,7 +34,10 @@ def build_cmd(
     if has_ffmpeg:
         cmd += ["--merge-output-format", cfg.get("merge_output_format", "mp4")]
     cmd += ["--continue"]
-    cmd += ["--download-archive", str(archive_file)]
+    if not force:
+        cmd += ["--download-archive", str(archive_file)]
+    else:
+        cmd += ["--force-overwrites"]
     cmd += ["--extractor-retries", str(cfg.get("extractor_retries", 5))]
     cmd += ["--fragment-retries", str(cfg.get("fragment_retries", 5))]
     cmd += ["--match-filter", cfg.get("match_filter", "!is_live")]
@@ -56,6 +60,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="YouTube Video Downloader (720p)")
     parser.add_argument("--url", help="Single video URL to download")
     parser.add_argument("--list", help="File with URLs (one per line), e.g. @list.txt")
+    parser.add_argument("--force", action="store_true", help="Force redownload even if archived")
     args = parser.parse_args()
 
     if not shutil.which("yt-dlp"):
@@ -73,6 +78,7 @@ def main() -> None:
         label="Downloading video",
         done_emoji="🎉",
         done_msg="All video downloads completed!",
+        force=args.force,
     )
 
 

@@ -20,20 +20,19 @@ import yaml
 
 CNF_FILE = Path("./config/cnf.yaml")
 
-def _find_node() -> str | None:
-    """Return the path to node/nodejs, or None if not found."""
-    for name in ("node", "nodejs"):
-        p = shutil.which(name)
-        if p:
-            return p
+def _find_deno() -> str | None:
+    """Return the path to deno, or None if not found."""
+    p = shutil.which("deno")
+    if p:
+        return p
     # Common fallback locations
-    for fallback in ("/usr/sbin/node", "/usr/bin/node", "/usr/local/bin/node"):
-        if Path(fallback).is_file():
-            return fallback
+    for fallback in ("/usr/bin/deno", "/usr/local/bin/deno", "~/.deno/bin/deno"):
+        if Path(fallback).expanduser().is_file():
+            return str(Path(fallback).expanduser())
     return None
 
 
-NODE_PATH: str | None = _find_node()
+DENO_PATH: str | None = _find_deno()
 
 # ---------------------------------------------------------------------------
 # Shared flags / state
@@ -145,11 +144,11 @@ def load_urls(args_url: str | None, args_list: str | None, cfg: dict) -> list[st
 def base_ytdlp_flags() -> list[str]:
     """Flags shared by both video and audio downloads."""
     flags: list[str] = []
-    if NODE_PATH:
-        flags += ["--js-runtimes", f"node:{NODE_PATH}"]
+    if DENO_PATH:
+        flags += ["--js-runtimes", f"deno:{DENO_PATH}"]
         flags += ["--remote-components", "ejs:github"]
     else:
-        print("⚠️  Node.js not found — YouTube n-challenge may fail for some videos.")
+        print("⚠️  Deno not found — YouTube n-challenge may fail for some videos.")
     return flags
 
 
@@ -160,6 +159,7 @@ def run_downloads(
     label: str = "Downloading",
     done_emoji: str = "🎉",
     done_msg: str = "All downloads completed!",
+    force: bool = False,
 ) -> None:
     """
     Core download loop.
@@ -206,7 +206,7 @@ def run_downloads(
         print(f"⬇️  {label}:\n   {url}")
         print("-----------------------------------")
 
-        cmd = build_cmd(url, cfg, has_ffmpeg, cookie_arg)
+        cmd = build_cmd(url, cfg, has_ffmpeg, cookie_arg, force)
 
         with proc_lock:
             current_proc = subprocess.Popen(cmd)

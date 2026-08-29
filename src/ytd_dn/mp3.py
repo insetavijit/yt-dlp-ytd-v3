@@ -21,6 +21,9 @@ AUDIO_FORMAT = (
     "bestaudio[ext=m4a][abr<=160]"
     "/bestaudio[acodec!=none][vcodec=none][abr<=160]"
     "/bestaudio[acodec!=none][vcodec=none]"
+    "/bestaudio"
+    "/best[height<=360]"
+    "/best"
 )
 
 
@@ -29,6 +32,7 @@ def build_cmd(
     cfg: dict,
     has_ffmpeg: bool,
     cookie_arg: list[str],
+    force: bool = False,
 ) -> list[str]:
     """Build the yt-dlp command for a single MP3 download."""
     from pathlib import Path
@@ -39,11 +43,14 @@ def build_cmd(
 
     cmd = ["yt-dlp"]
     cmd += base_ytdlp_flags()
-    cmd += ["-f", AUDIO_FORMAT]
+    cmd += ["-f", cfg.get("audio_format", AUDIO_FORMAT)]
     if has_ffmpeg:
         cmd += ["--extract-audio", "--audio-format", "mp3", "--audio-quality", "0"]
     cmd += ["--continue"]
-    cmd += ["--download-archive", str(archive_file)]
+    if not force:
+        cmd += ["--download-archive", str(archive_file)]
+    else:
+        cmd += ["--force-overwrites"]
     cmd += ["--extractor-retries", str(cfg.get("extractor_retries", 5))]
     cmd += ["--fragment-retries", str(cfg.get("fragment_retries", 5))]
     cmd += ["--match-filter", cfg.get("match_filter", "!is_live")]
@@ -65,6 +72,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="YouTube Audio Downloader (MP3)")
     parser.add_argument("--url", help="Single video URL to download as MP3")
     parser.add_argument("--list", help="File with URLs (one per line), e.g. @list.txt")
+    parser.add_argument("--force", action="store_true", help="Force redownload even if archived")
     args = parser.parse_args()
 
     if not shutil.which("yt-dlp"):
@@ -82,6 +90,7 @@ def main() -> None:
         label="Downloading MP3",
         done_emoji="🎵",
         done_msg="All MP3 downloads completed!",
+        force=args.force,
     )
 
 

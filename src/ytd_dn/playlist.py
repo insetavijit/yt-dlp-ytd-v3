@@ -15,6 +15,7 @@ def build_cmd(
     cfg: dict,
     has_ffmpeg: bool,
     cookie_arg: list[str],
+    force: bool = False,
 ) -> list[str]:
     """Build the yt-dlp command for a playlist download."""
     from pathlib import Path
@@ -43,7 +44,10 @@ def build_cmd(
     cmd += ["--replace-in-metadata", "title", r"[^\w\s-]", ""]
     cmd += ["--replace-in-metadata", "title", r"[\s_-]+", "-"]
     
-    cmd += ["--download-archive", str(archive_file)]
+    if not force:
+        cmd += ["--download-archive", str(archive_file)]
+    else:
+        cmd += ["--force-overwrites"]
     cmd += ["--extractor-retries", str(cfg.get("extractor_retries", 5))]
     cmd += ["--fragment-retries", str(cfg.get("fragment_retries", 5))]
     cmd += ["--match-filter", cfg.get("match_filter", "!is_live")]
@@ -68,6 +72,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="YouTube Playlist Downloader")
     parser.add_argument("--url", help="Playlist URL to download")
     parser.add_argument("--list", help="File with URLs (one per line), e.g. @list.txt")
+    parser.add_argument("--force", action="store_true", help="Force redownload even if archived")
     args = parser.parse_args()
 
     if not shutil.which("yt-dlp"):
@@ -85,6 +90,7 @@ def main() -> None:
         label="Downloading playlist",
         done_emoji="📚",
         done_msg="All playlist downloads completed!",
+        force=args.force,
     )
 
 
